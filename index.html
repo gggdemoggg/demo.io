@@ -1,0 +1,129 @@
+###КОД JAVA
+Подключение postgresql(pom.xml): 
+dependencies
+    dependency
+            groupId>org.postgresql/groupId
+            artifactId>postgresql/artifactId
+            version>42.7.5/version
+    /dependency
+/dependencies
+Класс MyDataBase(для работы с БД):
+public class MyDataBase 
+{
+    private String      DATABASE_NAME;
+    private String      IP;
+    private String      USER;
+    private String      PASSWORD;
+    private Connection  connection; 
+    public MyDataBase(String IP, String DATABASE_NAME, String USER, String PASSWORD) throws Exception
+    {
+        this.IP = IP;
+        this.USER = USER;
+        this.PASSWORD = PASSWORD;      
+        connection = DriverManager.getConnection("jdbc:postgresql://"+ IP +":5432/" + DATABASE_NAME, USER, PASSWORD);
+        if(connection != null)
+            System.out.println("[*] Подключение произошло успешно!");
+    }    
+    public void close() throws Exception
+    {
+        connection.close();
+    }
+    public ResultSet  request(String sqlQuery, Object... params) throws Exception
+    {
+        PreparedStatement preparedStatement = null;
+        ResultSet rs                        = null;             
+        preparedStatement = connection.prepareStatement(sqlQuery);
+        if(params.length != 0)
+        {
+            for (int i = 0; i < params.length; i++) 
+            {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+        }
+        rs = preparedStatement.executeQuery();
+        return rs;
+    }
+    public int requestInsert(String sqlQuery, Object... params) throws Exception 
+    {
+        PreparedStatement preparedStatement = null;
+        try 
+        {
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            if(params.length != 0) 
+            {
+                for (int i = 0; i < params.length; i++) 
+                {
+                    preparedStatement.setObject(i + 1, params[i]);
+                }
+            }
+            return preparedStatement.executeUpdate();
+        } 
+        finally 
+        {
+            if (preparedStatement != null) 
+            {
+                preparedStatement.close();
+            }
+        }
+    }
+}
+SQL-Запросы для postgres(С примером использования):
+1)(Взятие данных)ResultSet result = bd.request("SELECT * FROM tabel_account WHERE login = ? AND password_hash = ?", Login, sha256.hash(Password));
+String role     = result.getString(4);
+2)(Отправка данных)int responseTRecord = bd.requestInsert(
+"INSERT INTO tabel_record ( id_record, client, service, master, data, time, status, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+getRecord(),getClient(), service, getMaster(), data, time, "Ожидание", "-"
+); // если <= то ошибка
+Графический интерфейс:
+// Создаем JFrame
+JFrame frame = new JFrame("Простая форма без менеджера компоновки");
+frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+frame.setSize(300, 200);
+frame.setLayout(null); // Отключаем менеджер компоновки
+JLabel label = new JLabel("Нажмите кнопку");
+label.setBounds(50, 30, 200, 30); // x, y, width, height
+frame.add(label);
+JButton button = new JButton("Нажми меня");
+button.setBounds(50, 80, 200, 30); // x, y, width, height
+frame.add(button);
+button.addActionListener(new ActionListener() {
+	@Override
+        public void actionPerformed(ActionEvent e) {}
+});
+frame.setVisible(true);
+Чтение из index.php:
+URL url = new URL("http://example.com/index.php");
+HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+connection.setRequestMethod("GET");
+int responseCode = connection.getResponseCode();
+System.out.println("Response Code: " + responseCode);
+if (responseCode == HttpURLConnection.HTTP_OK) {
+	BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+              response.append(inputLine);
+        }
+        in.close();
+        System.out.println(response.toString());
+} else {
+        System.out.println("GET request not worked");
+}
+###Теоритическая часть
+Пример Тестирования(test-case):
+1. Тест-кейс для проверки авторизации пользователя
+Название: Проверка входа в систему с валидными данными.
+Предусловие: Пользователь зарегистрирован в системе (логин: user123, пароль: Pass123!).
+Шаги:
+Открыть страницу входа.
+Ввести логин user123.
+Ввести пароль Pass123!.
+Нажать кнопку "Войти".
+Ожидаемый результат: Пользователь успешно авторизован, открывается главная страница.
+2. Тест-кейс для проверки поиска товара
+Название: Поиск товара по названию.
+Предусловие: Открыт интернет-магазин, в каталоге есть товар "Смартфон Xiaomi Redmi Note 12".
+Шаги:
+Ввести в поисковую строку Xiaomi Redmi Note 12.
+Нажать кнопку "Найти".
+Ожидаемый результат: В результатах поиска отображается товар "Смартфон Xiaomi Redmi Note 12".
