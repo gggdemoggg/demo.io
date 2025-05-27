@@ -1,13 +1,26 @@
-###КОД JAVA
-Подключение postgresql(pom.xml): 
-dependencies
-    dependency
-            groupId>org.postgresql/groupId
-            artifactId>postgresql/artifactId
-            version>42.7.5/version
-    /dependency
-/dependencies
-Класс MyDataBase(для работы с БД):
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ Java РєРѕРґР°</title>
+</head>
+<body>
+    <h1>Р”РѕРєСѓРјРµРЅС‚Р°С†РёСЏ Java РєРѕРґР°</h1>
+
+    <h2>РџРѕРґРєР»СЋС‡РµРЅРёРµ PostgreSQL (pom.xml)</h2>
+    <pre><code>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+        &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+        &lt;version&gt;42.7.5&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+    </code></pre>
+
+    <h2>РљР»Р°СЃСЃ MyDataBase (РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р‘Р”)</h2>
+    <pre><code>
 public class MyDataBase 
 {
     private String      DATABASE_NAME;
@@ -15,6 +28,7 @@ public class MyDataBase
     private String      USER;
     private String      PASSWORD;
     private Connection  connection; 
+    
     public MyDataBase(String IP, String DATABASE_NAME, String USER, String PASSWORD) throws Exception
     {
         this.IP = IP;
@@ -22,20 +36,22 @@ public class MyDataBase
         this.PASSWORD = PASSWORD;      
         connection = DriverManager.getConnection("jdbc:postgresql://"+ IP +":5432/" + DATABASE_NAME, USER, PASSWORD);
         if(connection != null)
-            System.out.println("[*] Подключение произошло успешно!");
+            System.out.println("[*] РџРѕРґРєР»СЋС‡РµРЅРёРµ РїСЂРѕРёР·РѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ!");
     }    
+    
     public void close() throws Exception
     {
         connection.close();
     }
-    public ResultSet  request(String sqlQuery, Object... params) throws Exception
+    
+    public ResultSet request(String sqlQuery, Object... params) throws Exception
     {
         PreparedStatement preparedStatement = null;
-        ResultSet rs                        = null;             
+        ResultSet rs = null;             
         preparedStatement = connection.prepareStatement(sqlQuery);
         if(params.length != 0)
         {
-            for (int i = 0; i < params.length; i++) 
+            for (int i = 0; i &lt; params.length; i++) 
             {
                 preparedStatement.setObject(i + 1, params[i]);
             }
@@ -43,6 +59,7 @@ public class MyDataBase
         rs = preparedStatement.executeQuery();
         return rs;
     }
+    
     public int requestInsert(String sqlQuery, Object... params) throws Exception 
     {
         PreparedStatement preparedStatement = null;
@@ -51,7 +68,7 @@ public class MyDataBase
             preparedStatement = connection.prepareStatement(sqlQuery);
             if(params.length != 0) 
             {
-                for (int i = 0; i < params.length; i++) 
+                for (int i = 0; i &lt; params.length; i++) 
                 {
                     preparedStatement.setObject(i + 1, params[i]);
                 }
@@ -67,63 +84,101 @@ public class MyDataBase
         }
     }
 }
-SQL-Запросы для postgres(С примером использования):
-1)(Взятие данных)ResultSet result = bd.request("SELECT * FROM tabel_account WHERE login = ? AND password_hash = ?", Login, sha256.hash(Password));
-String role     = result.getString(4);
-2)(Отправка данных)int responseTRecord = bd.requestInsert(
-"INSERT INTO tabel_record ( id_record, client, service, master, data, time, status, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-getRecord(),getClient(), service, getMaster(), data, time, "Ожидание", "-"
-); // если <= то ошибка
-Графический интерфейс:
-// Создаем JFrame
-JFrame frame = new JFrame("Простая форма без менеджера компоновки");
+    </code></pre>
+
+    <h2>SQL-Р—Р°РїСЂРѕСЃС‹ РґР»СЏ PostgreSQL (СЃ РїСЂРёРјРµСЂРѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ)</h2>
+    <ol>
+        <li>
+            <strong>Р’Р·СЏС‚РёРµ РґР°РЅРЅС‹С…:</strong>
+            <pre><code>
+ResultSet result = bd.request("SELECT * FROM tabel_account WHERE login = ? AND password_hash = ?", 
+                             Login, sha256.hash(Password));
+String role = result.getString(4);
+            </code></pre>
+        </li>
+        <li>
+            <strong>РћС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С…:</strong>
+            <pre><code>
+int responseTRecord = bd.requestInsert(
+    "INSERT INTO tabel_record (id_record, client, service, master, data, time, status, comment) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    getRecord(), getClient(), service, getMaster(), data, time, "РћР¶РёРґР°РЅРёРµ", "-"
+); // РµСЃР»Рё &lt;= 0 С‚Рѕ РѕС€РёР±РєР°
+            </code></pre>
+        </li>
+    </ol>
+
+    <h2>Р“СЂР°С„РёС‡РµСЃРєРёР№ РёРЅС‚РµСЂС„РµР№СЃ</h2>
+    <pre><code>
+// РЎРѕР·РґР°РµРј JFrame
+JFrame frame = new JFrame("РџСЂРѕСЃС‚Р°СЏ С„РѕСЂРјР° Р±РµР· РјРµРЅРµРґР¶РµСЂР° РєРѕРјРїРѕРЅРѕРІРєРё");
 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 frame.setSize(300, 200);
-frame.setLayout(null); // Отключаем менеджер компоновки
-JLabel label = new JLabel("Нажмите кнопку");
+frame.setLayout(null); // РћС‚РєР»СЋС‡Р°РµРј РјРµРЅРµРґР¶РµСЂ РєРѕРјРїРѕРЅРѕРІРєРё
+
+JLabel label = new JLabel("РќР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ");
 label.setBounds(50, 30, 200, 30); // x, y, width, height
 frame.add(label);
-JButton button = new JButton("Нажми меня");
+
+JButton button = new JButton("РќР°Р¶РјРё РјРµРЅСЏ");
 button.setBounds(50, 80, 200, 30); // x, y, width, height
 frame.add(button);
+
 button.addActionListener(new ActionListener() {
-	@Override
-        public void actionPerformed(ActionEvent e) {}
+    @Override
+    public void actionPerformed(ActionEvent e) {}
 });
+
 frame.setVisible(true);
-Чтение из index.php:
+    </code></pre>
+
+    <h2>Р§С‚РµРЅРёРµ РёР· index.php</h2>
+    <pre><code>
 URL url = new URL("http://example.com/index.php");
 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 connection.setRequestMethod("GET");
+
 int responseCode = connection.getResponseCode();
 System.out.println("Response Code: " + responseCode);
+
 if (responseCode == HttpURLConnection.HTTP_OK) {
-	BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-              response.append(inputLine);
-        }
-        in.close();
-        System.out.println(response.toString());
+    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    String inputLine;
+    StringBuilder response = new StringBuilder();
+    
+    while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+    }
+    in.close();
+    System.out.println(response.toString());
 } else {
-        System.out.println("GET request not worked");
+    System.out.println("GET request not worked");
 }
-###Теоритическая часть
-Пример Тестирования(test-case):
-1. Тест-кейс для проверки авторизации пользователя
-Название: Проверка входа в систему с валидными данными.
-Предусловие: Пользователь зарегистрирован в системе (логин: user123, пароль: Pass123!).
-Шаги:
-Открыть страницу входа.
-Ввести логин user123.
-Ввести пароль Pass123!.
-Нажать кнопку "Войти".
-Ожидаемый результат: Пользователь успешно авторизован, открывается главная страница.
-2. Тест-кейс для проверки поиска товара
-Название: Поиск товара по названию.
-Предусловие: Открыт интернет-магазин, в каталоге есть товар "Смартфон Xiaomi Redmi Note 12".
-Шаги:
-Ввести в поисковую строку Xiaomi Redmi Note 12.
-Нажать кнопку "Найти".
-Ожидаемый результат: В результатах поиска отображается товар "Смартфон Xiaomi Redmi Note 12".
+    </code></pre>
+
+    <h2>РўРµРѕСЂРµС‚РёС‡РµСЃРєР°СЏ С‡Р°СЃС‚СЊ</h2>
+    <h3>РџСЂРёРјРµСЂ РўРµСЃС‚РёСЂРѕРІР°РЅРёСЏ (test-case)</h3>
+    
+    <h4>1. РўРµСЃС‚-РєРµР№СЃ РґР»СЏ РїСЂРѕРІРµСЂРєРё Р°РІС‚РѕСЂРёР·Р°С†РёРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ</h4>
+    <p><strong>РќР°Р·РІР°РЅРёРµ:</strong> РџСЂРѕРІРµСЂРєР° РІС…РѕРґР° РІ СЃРёСЃС‚РµРјСѓ СЃ РІР°Р»РёРґРЅС‹РјРё РґР°РЅРЅС‹РјРё.</p>
+    <p><strong>РџСЂРµРґСѓСЃР»РѕРІРёРµ:</strong> РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ РІ СЃРёСЃС‚РµРјРµ (Р»РѕРіРёРЅ: user123, РїР°СЂРѕР»СЊ: Pass123!).</p>
+    <p><strong>РЁР°РіРё:</strong></p>
+    <ol>
+        <li>РћС‚РєСЂС‹С‚СЊ СЃС‚СЂР°РЅРёС†Сѓ РІС…РѕРґР°.</li>
+        <li>Р’РІРµСЃС‚Рё Р»РѕРіРёРЅ user123.</li>
+        <li>Р’РІРµСЃС‚Рё РїР°СЂРѕР»СЊ Pass123!.</li>
+        <li>РќР°Р¶Р°С‚СЊ РєРЅРѕРїРєСѓ "Р’РѕР№С‚Рё".</li>
+    </ol>
+    <p><strong>РћР¶РёРґР°РµРјС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚:</strong> РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓСЃРїРµС€РЅРѕ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ, РѕС‚РєСЂС‹РІР°РµС‚СЃСЏ РіР»Р°РІРЅР°СЏ СЃС‚СЂР°РЅРёС†Р°.</p>
+    
+    <h4>2. РўРµСЃС‚-РєРµР№СЃ РґР»СЏ РїСЂРѕРІРµСЂРєРё РїРѕРёСЃРєР° С‚РѕРІР°СЂР°</h4>
+    <p><strong>РќР°Р·РІР°РЅРёРµ:</strong> РџРѕРёСЃРє С‚РѕРІР°СЂР° РїРѕ РЅР°Р·РІР°РЅРёСЋ.</p>
+    <p><strong>РџСЂРµРґСѓСЃР»РѕРІРёРµ:</strong> РћС‚РєСЂС‹С‚ РёРЅС‚РµСЂРЅРµС‚-РјР°РіР°Р·РёРЅ, РІ РєР°С‚Р°Р»РѕРіРµ РµСЃС‚СЊ С‚РѕРІР°СЂ "РЎРјР°СЂС‚С„РѕРЅ Xiaomi Redmi Note 12".</p>
+    <p><strong>РЁР°РіРё:</strong></p>
+    <ol>
+        <li>Р’РІРµСЃС‚Рё РІ РїРѕРёСЃРєРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ Xiaomi Redmi Note 12.</li>
+        <li>РќР°Р¶Р°С‚СЊ РєРЅРѕРїРєСѓ "РќР°Р№С‚Рё".</li>
+    </ol>
+    <p><strong>РћР¶РёРґР°РµРјС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚:</strong> Р’ СЂРµР·СѓР»СЊС‚Р°С‚Р°С… РїРѕРёСЃРєР° РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ С‚РѕРІР°СЂ "РЎРјР°СЂС‚С„РѕРЅ Xiaomi Redmi Note 12".</p>
+</body>
+</html>
