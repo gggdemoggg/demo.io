@@ -156,6 +156,32 @@ if (responseCode == HttpURLConnection.HTTP_OK) {
 }
     </code></pre>
 
+    <h2>Post запрос на сервер</h2>
+    <pre><code>
+    public static String sendPostRequest(String url, String jsonInput) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setRequestMethod("POST");
+        c.setRequestProperty("Content-Type", "application/json");
+        c.setRequestProperty("Accept", "application/json");
+        c.setDoOutput(true);
+        
+        try (OutputStream os = c.getOutputStream()) {
+            os.write(jsonInput.getBytes("utf-8"));
+        }
+
+        if (c.getResponseCode() / 100 != 2) { // Проверяем успешный статус (2xx)
+            throw new RuntimeException("POST failed: " + c.getResponseCode());
+        }
+
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream()))) {
+            return in.lines().collect(java.util.stream.Collectors.joining());
+        }
+    }
+    System.out.println("POST Response: " + 
+            sendPostRequest("https://jsonplaceholder.typicode.com/posts", 
+            "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}"));
+    </code></pre>
+    
     <h2>Теоретическая часть</h2>
     <h3>Пример Тестирования (test-case)</h3>
     
